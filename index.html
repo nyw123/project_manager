@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사내용 프로젝트 매니저</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="lib/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="header-panel">
+        <div class="header-top">
+            <div style="display:flex; align-items:center;">
+                <h2>📊 프로젝트 매니저</h2>
+                <div class="dashboard-badge">
+                    전체 <span id="total-tasks">0</span> / 완료 <span id="completed-tasks">0</span> (<span id="progress-rate">0</span>%)
+                </div>
+            </div>
+            <button onclick="toggleHeader()" id="header-toggle-btn" class="toggle-btn" style="padding: 5px 10px;">설정 접기 🔼</button>
+        </div>
+        
+        <div id="header-content">
+            <div class="setup-row">
+                <label>📅 기간:</label> 
+                <input type="date" id="start-date" value="2026-03-16"> ~ <input type="date" id="end-date" value="2026-06-30">
+                <label>👥 담당자:</label> <input type="text" id="member-names" value="김직원, 이대리, 박과장, 최팀장" style="width: 230px;">
+                <button class="basic-btn" onclick="generateCalendar()">달력 갱신</button>
+                
+                <div class="action-group">
+                    <button onclick="saveData()" class="action-btn btn-save">💾 설정 저장</button>
+                    <button onclick="document.getElementById('load-file').click()" class="action-btn btn-load">📂 불러오기</button>
+                    <input type="file" id="load-file" accept=".json" onchange="loadData(event)" style="display:none;">
+                </div>
+            </div>
+            
+            <div class="color-settings" id="color-settings-panel">
+                <strong>🎨 색상:</strong> <div id="color-pickers-container" style="display:flex; gap:10px;"></div>
+            </div>
+            
+            <div class="setup-row">
+                <label>📁 엑셀 업로드:</label> <input type="file" id="file-upload" accept=".xlsx, .xls" />
+            </div>
+            
+            <div class="excel-panel" id="excel-panel">
+                <div class="form-group" id="sheet-wrapper"><label>📑 시트 선택:</label> <select id="sheet-select" onchange="loadColumnsFromSheet()"></select></div>
+                <div class="form-group"><label>📌 대상명 열:</label> <select id="name-col-select"></select></div>
+                <div class="form-group"><label>📝 가져올 세부정보:</label> <div id="detail-cols-container" style="display:flex; gap:15px; flex-wrap:wrap; background:#fff; padding:8px; border:1px solid #ccc; border-radius:4px; flex-grow:1;"></div></div>
+                <button class="basic-btn" onclick="importExcelData()" style="background:#2ECC71;">✅ 데이터 가져오기</button>
+                <button class="basic-btn" onclick="cancelImport()" style="background:#95a5a6; margin-left:10px;">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar" id="left-sidebar">
+            <div class="sidebar-header">
+                <h3>대기 목록</h3>
+                <button onclick="toggleSidebar('left-sidebar')" class="toggle-btn">◀ 접기</button>
+            </div>
+            
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="new-task-input" placeholder="새 대상 이름 입력..." style="flex-grow:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;" onkeypress="if(event.key==='Enter') addNewTask()">
+                <button onclick="addNewTask()" style="padding:6px 10px; background:#2ECC71; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">추가</button>
+            </div>
+
+            <div id="pending-tasks" class="pending-area" ondragover="allowDrop(event)" ondrop="dropToPending(event)"></div>
+        </div>
+        <div class="collapsed-sidebar" id="left-sidebar-toggle" onclick="toggleSidebar('left-sidebar')">▶ 펴기</div>
+        
+        <div class="resizer" id="resizer-left"></div>
+
+        <div class="main-board">
+            <table class="calendar">
+                <colgroup><col style="width:20%;" span="5"></colgroup>
+                <tbody id="calendar-body"></tbody>
+            </table>
+        </div>
+
+        <div class="resizer" id="resizer-right"></div>
+
+        <div class="details-panel" id="right-sidebar">
+            <div class="sidebar-header">
+                <h3>상세 정보</h3>
+                <button onclick="toggleSidebar('right-sidebar')" class="toggle-btn">접기 ▶</button>
+            </div>
+            <div style="font-size:10px; color:#888; margin-bottom:5px;">💡 텍스트를 클릭하여 바로 수정할 수 있습니다.</div>
+            
+            <h4 id="details-title" class="editable-field" contenteditable="true" onblur="updateCurrentTaskName(this.innerText)" style="color:#4A90E2; margin:0 0 5px 0; font-size:16px;">-</h4>
+            <div id="details-content" class="details-content">대상을 클릭하면 세부 정보가 이곳에 표시됩니다.</div>
+        </div>
+        <div class="collapsed-sidebar" id="right-sidebar-toggle" onclick="toggleSidebar('right-sidebar')">◀ 펴기</div>
+    </div>
+
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/task.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/excel.js"></script>
+    <script src="js/storage.js"></script>
+</body>
+</html>
